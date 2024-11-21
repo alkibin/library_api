@@ -23,7 +23,7 @@ async def add_book(
     return result
 
 
-@router.delete('/delete/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/delete/{book_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(
         book_id: UUID,
         service: BookService = Depends(get_book_manager)
