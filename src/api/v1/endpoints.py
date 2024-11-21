@@ -51,15 +51,12 @@ async def get_book(
     return {'books': books}
 
 
-@router.get('/show-all',
-            response_model=BookResponseList,
-            status_code=status.HTTP_200_OK
-)
+@router.get('/show-all', response_model=BookResponseList, status_code=status.HTTP_200_OK)
 async def show_books(
-        params: Pagination = Depends(),
+        pagination: Pagination = Depends(),
         service: BookService = Depends(get_book_manager)
 ):
-    books = await service.show_books(params)
+    books = await service.show_books(pagination)
     return {'books': books}
 
 

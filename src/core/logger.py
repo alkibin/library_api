@@ -6,7 +6,7 @@ import sys
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            'service': 'auth',
+            'service': 'library',
             'level': record.levelname,
             'message': record.getMessage(),
             'timestamp': self.formatTime(record, self.datefmt),
@@ -19,7 +19,7 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(log_record)
 
 
-def setup_logging(logger_name='billing'):
+def setup_logging(logger_name='library'):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.INFO)
 

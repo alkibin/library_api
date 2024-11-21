@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, Integer, String, insert, select, update, and_, or_, delete
+from sqlalchemy import Column, Integer, String, insert, select, update, and_, or_, delete, func
 from sqlalchemy import Enum as SqlAlchemyEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,9 +35,9 @@ class Book(Base):
     async def get_books_by_option(cls, session: AsyncSession, title=None, author=None, year=None):
         options = []
         if title:
-            options.append(cls.title.like(f"%{title}%"))
+            options.append(func.lower(cls.title).like(f"%{title.lower()}%"))
         if author:
-            options.append(cls.author.like(f"%{author}%"))
+            options.append(func.lower(cls.author).like(f"%{author.lower()}%"))
         if year:
             options.append(cls.year == year)
 
@@ -64,7 +64,7 @@ class Book(Base):
 
     @classmethod
     async def get_all_books(cls, session: AsyncSession, pagination):
-        query = select(cls).limit(pagination.limit).offset(pagination.offset)
+        query = select(cls).limit(pagination.page_size).offset(pagination.page_number)
         result = await session.execute(query)
         return result.scalars().all()
 

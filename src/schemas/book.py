@@ -1,12 +1,14 @@
 from enum import Enum
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel
+from fastapi import Query
 
 
 class Pagination(BaseModel):
-    offset: int
-    limit: int
+    page_number: Annotated[int, Query(ge=0)] = 0
+    page_size: Annotated[int, Query(ge=1)] = 20
 
 
 class BookStatusEnum(str, Enum):
