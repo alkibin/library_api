@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from src.models.models import Book
+from src.models.books import Book
 from src.db.session import AsyncSession, get_session
 
 

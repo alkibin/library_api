@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     project_description: str = 'test task for EM'
     project_url: str = Field('', env="PROJECT_URL")
 
-    db_name: str = Field('billing', env='DB_NAME')
+    db_name: str = Field('library', env='DB_NAME')
     db_user: str = Field('user', env='DB_USER')
-    db_host: str = Field('postgres', env='DB_HOST')
+    db_host: str = Field('localhost', env='DB_HOST')
     db_port: str = Field('5432', env='DB_PORT')
     db_password: str = Field('pass', env='DB_PASSWORD')
 

@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 from src.db.base import Base, engine
 from src.db.session import async_session
-from src.models.models import Book
+from src.models.books import Book
 
 
 async def create_schema(engine):
