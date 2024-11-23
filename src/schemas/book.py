@@ -20,7 +20,6 @@ class CreateBookModel(BaseModel):
     title: str
     author: str
     year: int
-    status: BookStatusEnum
 
 
 class BookFindParams(BaseModel):

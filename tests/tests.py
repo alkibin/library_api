@@ -21,8 +21,7 @@ async def test_add_book(del_book):
     params = dict(
         title=faker.text(max_nb_chars=20),
         author=faker.name(),
-        year=int(faker.year()),
-        status=random.choice(['в наличии', 'выдана'])
+        year=int(faker.year())
     )
     async with ClientSession() as session:
         response = await session.post(f'{BASE_URL}api/v1/book_manager/create', json=params)
@@ -83,6 +82,7 @@ async def test_show_books(page_number, page_size, expected):
     'new_status, expected',
     [
         ('выдана', HTTPStatus.OK),
+        ('в наличии', HTTPStatus.OK),
         ('не доступен', HTTPStatus.UNPROCESSABLE_ENTITY),
     ]
 )
