@@ -1,0 +1,9 @@
+greenlet==3.1.1
+httpx==0.27.2
+pytest==8.3.3
+pytest-asyncio==0.24.0
+python-dotenv==1.0.1
+SQLAlchemy==2.0.36
+asyncpg==0.30.0
+aiohttp==3.11.7
+Faker==33.0.0
