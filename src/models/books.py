@@ -17,7 +17,7 @@ class Book(Base):
     title = Column(String)
     author = Column(String)
     year = Column(Integer)
-    status = Column(SqlAlchemyEnum(BookStatusEnum))
+    status = Column(SqlAlchemyEnum(BookStatusEnum), default=BookStatusEnum.AVAILABLE.value)
 
     @classmethod
     async def add(cls, session: AsyncSession, **values):
