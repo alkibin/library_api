@@ -28,7 +28,13 @@ async def delete_book(
         book_id: UUID,
         service: BookService = Depends(get_book_manager)
 ):
-    return await service.book_delete(book_id)
+    result = await service.book_delete(book_id)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Книга не найдена'
+        )
+    return {'msg': 'success'}
 
 
 @router.get('/get-book', response_model=BookResponseList, status_code=status.HTTP_200_OK)
@@ -59,4 +65,10 @@ async def change_status(
         new_status: BookStatus,
         service: BookService = Depends(get_book_manager)
 ):
-    return await service.change_status(new_status)
+    updated = await service.change_status(new_status)
+    if updated is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Искомой книги нет в базе'
+        )
+    return updated

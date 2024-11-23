@@ -23,7 +23,7 @@ async def init_db() -> None:
 async def add_test_data() -> None:
     async with async_session() as session:
         faker = Faker()
-        test_subscriptions = [
+        test_data = [
             Book(
                 id=uuid.uuid4(),
                 title=faker.text(max_nb_chars=20),
@@ -32,5 +32,5 @@ async def add_test_data() -> None:
                 status=choice(['в наличии', 'выдана'])
             ) for _ in range(100)
         ]
-        session.add_all(test_subscriptions)
+        session.add_all(test_data)
         await session.commit()

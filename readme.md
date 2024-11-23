@@ -27,19 +27,14 @@ Copy
 git clone https://github.com/alkibin/library_api.git
 cd library-management
 Создайте файл .env:
-Создайте файл .env в корне проекта и добавьте следующие переменные окружения:
+Создайте файл .env в корне проекта и добавьте следующие переменные окружения из .env.sample
 
-env
-Copy
-POSTGRES_USER=your_postgres_user
-POSTGRES_PASSWORD=your_postgres_password
-POSTGRES_DB=library_db
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
 Запустите Docker Compose:
 
 docker-compose up -d --build
-Это создаст и запустит контейнеры для приложения и базы данных.
+
+Это создаст и запустит контейнеры для приложения и базы данных. Так же зпустятся тесты апи в отдельном контейнере. 
+Можно посмотеть по логам успешность выполнения операции.
 
 
 С приложением можно повзаимодействовать через сваггер на localhost:81/api/openapi

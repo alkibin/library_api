@@ -15,6 +15,20 @@ services:
       DB_PORT: 5432
     volumes:
       - .:/app
+    healthcheck:
+      test: curl -sS http://api:8000 || exit 1
+      interval: 1s
+      retries: 5
+      start_period: 1s
+      timeout: 1s
+
+  api_test:
+    build:
+      context: ./tests
+    depends_on:
+      api:
+        condition: service_healthy
+
 
   db:
     image: postgres:16
@@ -25,8 +39,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
 
   nginx:
     image: nginx:latest

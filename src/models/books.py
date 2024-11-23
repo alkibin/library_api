@@ -29,7 +29,7 @@ class Book(Base):
     async def remove(cls, session: AsyncSession, book_id):
         stmt = delete(cls).where(cls.id == book_id).returning(cls)
         result = await session.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.scalars().one_or_none()
 
     @classmethod
     async def get_books_by_option(cls, session: AsyncSession, title=None, author=None, year=None):

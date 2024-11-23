@@ -1,38 +1,29 @@
-import asyncio
 import os
 import sys
 
-import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
+from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from src.core.config import settings
-
-from main import app
-from src.models.books import Book
 from sqlalchemy.orm import sessionmaker
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
+load_dotenv(".env.test")
 
-@pytest_asyncio.fixture(name='client')
-def client():
-    cli = TestClient(app)
-    return cli
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
 
-
-# @pytest.fixture(scope='session')
-# def event_loop():
-#     loop = asyncio.new_event_loop()
-#     asyncio.set_event_loop(loop)
-#     yield loop
-#     loop.close()
+BASE_URL = "http://api:8000/"
 
 
 @pytest_asyncio.fixture()
 async def test_engine():
-    dsn = f'postgresql+asyncpg://{settings.db_user}:{settings.db_password}@{settings.db_host}:{settings.db_port}/{settings.db_name}'
+    dsn = f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     engine = create_async_engine(dsn, echo=True)
     yield engine
     await engine.dispose()
@@ -58,7 +49,17 @@ async def db_session(test_async_session):
 @pytest_asyncio.fixture(name='create_book')
 async def create_book(db_session):
     async def inner(values):
-        return await Book.add(db_session, **values)
+        result = await db_session.execute(
+            text(
+                """
+                    INSERT INTO book_library.book (id, title, author, year, status)
+                    VALUES(:id, :title, :author, :year, :status)
+                    RETURNING id; 
+                """
+            ), values
+        )
+        await db_session.commit()
+        return result.scalar_one_or_none()
 
     return inner
 
@@ -66,21 +67,22 @@ async def create_book(db_session):
 @pytest_asyncio.fixture(name='del_book')
 async def del_book(db_session):
     async def inner(book_id):
-        await Book.remove(db_session, book_id)
+        result = await db_session.execute(
+            text(
+                """
+                    DELETE FROM book_library.book
+                    WHERE id = :book_id;
+                """
+            ), {'book_id': book_id}
+        )
+        await db_session.commit()
+
     return inner
 
 
-values1 = {
-    'title': 'Триумфальная арка',
-    'author': "Э.М. Ремарк",
-    'year': 1932,
-    'status': "выдана",
+values = {
+    'title': 'Магия утра',
+    'author': 'Эл Род',
+    'year': 2018,
+    'status': 'BORROWED'
 }
-
-values2 = {
-    'title': 'Три товарища',
-    'author': "Э.М. Ремарк",
-    'year': 1929,
-    'status': "выдана",
-}
-
