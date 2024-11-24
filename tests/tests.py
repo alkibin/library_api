@@ -1,34 +1,26 @@
-import os
-import random
-import sys
 import uuid
 from http import HTTPStatus
 
 import pytest
-from aiohttp import ClientSession
 from faker import Faker
 
-from conftest import values, BASE_URL
-
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root)
+from conftest import values
 
 faker = Faker()
 
 
 @pytest.mark.asyncio
-async def test_add_book(del_book):
+async def test_add_book(client, del_book):
     params = dict(
         title=faker.text(max_nb_chars=20),
         author=faker.name(),
         year=int(faker.year())
     )
-    async with ClientSession() as session:
-        response = await session.post(f'{BASE_URL}api/v1/book_manager/create', json=params)
+    response = await client.post('api/v1/book_manager/create', json=params)
 
-    assert response.status == HTTPStatus.CREATED
+    assert response.status_code == HTTPStatus.CREATED
 
-    book = await response.json()
+    book = response.json()
     book_id = book['id']
     await del_book(book_id)
 
@@ -42,7 +34,7 @@ async def test_add_book(del_book):
     ]
 )
 @pytest.mark.asyncio
-async def test_get_book(create_book, del_book, title, author, year, expected):
+async def test_get_book(client, create_book, del_book, title, author, year, expected):
     book_id = uuid.uuid4()
     values['id'] = book_id
     await create_book(values)
@@ -52,11 +44,10 @@ async def test_get_book(create_book, del_book, title, author, year, expected):
         'author': author,
         'year': year,
     }
-    async with ClientSession() as session:
-        response = await session.get(f'{BASE_URL}api/v1/book_manager/get-book', params=params)
+    response = await client.get('api/v1/book_manager/get-book', params=params)
 
-        await del_book(book_id)
-        assert response.status == expected
+    await del_book(book_id)
+    assert response.status_code == expected
 
 
 @pytest.mark.parametrize(
@@ -68,14 +59,13 @@ async def test_get_book(create_book, del_book, title, author, year, expected):
     ]
 )
 @pytest.mark.asyncio
-async def test_show_books(page_number, page_size, expected):
+async def test_show_books(client, page_number, page_size, expected):
     params = {
         'page_number': page_number,
         'page_size': page_size
     }
-    async with ClientSession() as session:
-        response = await session.get(f'{BASE_URL}api/v1/book_manager/show-all', params=params)
-    assert response.status == expected
+    response = await client.get('api/v1/book_manager/show-all', params=params)
+    assert response.status_code == expected
 
 
 @pytest.mark.parametrize(
@@ -87,7 +77,7 @@ async def test_show_books(page_number, page_size, expected):
     ]
 )
 @pytest.mark.asyncio
-async def test_change_status(create_book, del_book, new_status, expected):
+async def test_change_status(client, create_book, del_book, new_status, expected):
     book_id = uuid.uuid4()
     values['id'] = book_id
     await create_book(values)
@@ -96,21 +86,20 @@ async def test_change_status(create_book, del_book, new_status, expected):
         'book_id': str(book_id),
         'status': new_status
     }
-    async with ClientSession() as session:
-        response = await session.post(f'{BASE_URL}api/v1/book_manager/change-status', json=params)
+    response = await client.post('api/v1/book_manager/change-status', json=params)
     await del_book(book_id)
 
-    assert response.status == expected
+    assert response.status_code == expected
 
 
 @pytest.mark.asyncio
-async def test_delete_book(create_book):
+async def test_delete_book(client, create_book):
     book_id = uuid.uuid4()
     values['id'] = book_id
     await create_book(values)
-    async with ClientSession() as session:
-        response = await session.delete(f'{BASE_URL}api/v1/book_manager/delete/{book_id}')
-        assert response.status == HTTPStatus.NO_CONTENT
 
-        response = await session.delete(f'{BASE_URL}api/v1/book_manager/delete/{book_id}')
-        assert response.status == HTTPStatus.NOT_FOUND
+    response = await client.delete(f'api/v1/book_manager/delete/{book_id}')
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+    response = await client.delete(f'api/v1/book_manager/delete/{book_id}')
+    assert response.status_code == HTTPStatus.NOT_FOUND
