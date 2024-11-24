@@ -1,14 +1,11 @@
 import os
-import sys
 
 import pytest_asyncio
 from dotenv import load_dotenv
+from httpx import AsyncClient as Client
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root)
 
 load_dotenv(".env.test")
 
@@ -19,6 +16,12 @@ DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
 BASE_URL = "http://api:8000/"
+
+
+@pytest_asyncio.fixture(name='client')
+async def client():
+    async with Client(base_url=BASE_URL) as ac:
+        yield ac
 
 
 @pytest_asyncio.fixture()
